@@ -218,6 +218,11 @@
             white-space: normal;
         }
 
+        .section-title .emoji {
+            display: inline-block;
+            font-style: normal;
+        }
+
         .section-title::after {
             content: '';
             position: absolute;
@@ -476,27 +481,28 @@
             }
 
             .overview-section {
-                padding: 20px 12px;
+                padding: 24px 12px 20px 12px;
                 border-radius: 16px;
-                overflow: visible;
+                overflow: visible !important;
             }
 
             .section-header {
-                padding: 0 5px;
+                padding: 0 8px;
                 margin-bottom: 24px;
                 width: 100%;
                 box-sizing: border-box;
                 position: relative;
                 z-index: 1;
-                display: block;
-                visibility: visible;
+                display: block !important;
+                visibility: visible !important;
+                overflow: visible !important;
             }
 
             .section-title {
-                font-size: 20px !important;
-                line-height: 1.5 !important;
-                padding: 0 !important;
-                margin: 0 auto 8px !important;
+                font-size: 18px !important;
+                line-height: 1.6 !important;
+                padding: 0 8px !important;
+                margin: 0 auto 12px !important;
                 word-wrap: break-word;
                 word-break: break-word;
                 max-width: 100%;
@@ -507,6 +513,14 @@
                 visibility: visible !important;
                 opacity: 1 !important;
                 color: #1a1a1a !important;
+                font-weight: 700 !important;
+                box-sizing: border-box;
+            }
+
+            .section-title .emoji {
+                display: inline-block;
+                vertical-align: middle;
+                font-size: 20px;
             }
 
             .section-title::after {
@@ -604,7 +618,7 @@
         <div id="dashboardContent" style="display: none;">
             <div class="overview-section">
                 <div class="section-header">
-                    <h2 class="section-title">🎉 Children's Day Special 🎉</h2>
+                    <h2 class="section-title"><span class="emoji">🎉</span> Children's Day Special <span class="emoji">🎉</span></h2>
                     <p class="section-subtitle">Celebrating young minds with educational content</p>
                 </div>
 
