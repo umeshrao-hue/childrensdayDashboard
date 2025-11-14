@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Children's Day Analytics Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 25%, #E31E24 50%, #8B0000 75%, #000000 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #1a1a1a;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.97);
+            z-index: -1;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .top-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            animation: fadeInLeft 0.8s ease-out;
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                transform: translateX(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .logo-icon {
+            width: 120px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-icon:hover {
+            transform: scale(1.05) rotate(2deg);
+        }
+
+        .logo-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 2px 4px rgba(227, 30, 36, 0.2));
+        }
+
+        .logo-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #E31E24 0%, #8B0000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .logo-text p {
+            font-size: 14px;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .date-badge {
+            background: linear-gradient(135deg, #E31E24 0%, #8B0000 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(227, 30, 36, 0.4);
+            animation: fadeInRight 0.8s ease-out, pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes fadeInRight {
+            from {
+                transform: translateX(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .overview-section {
+            background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(229, 231, 235, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            animation: scaleIn 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            position: relative;
+            display: inline-block;
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #E31E24, #8B0000);
+            border-radius: 2px;
+            animation: expandWidth 1s ease-out;
+        }
+
+        @keyframes expandWidth {
+            from { width: 0; }
+            to { width: 80px; }
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            color: #6b7280;
+            margin-top: 16px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInStagger 0.6s ease-out forwards;
+        }
+
+        .stat-box:nth-child(1) { animation-delay: 0.1s; }
+        .stat-box:nth-child(2) { animation-delay: 0.2s; }
+        .stat-box:nth-child(3) { animation-delay: 0.3s; }
+        .stat-box:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInStagger {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .stat-box:hover::before {
+            left: 100%;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #E31E24;
+            box-shadow: 0 12px 24px rgba(227, 30, 36, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            display: inline-block;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .stat-value {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #E31E24 0%, #8B0000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: countUp 1s ease-out;
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .chart-section {
+            margin-top: 40px;
+        }
+
+        .chart-wrapper {
+            background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(229, 231, 235, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .chart-wrapper:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .chart-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+
+        .table-section {
+            margin-top: 40px;
+        }
+
+        .data-table {
+            width: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(229, 231, 235, 0.5);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #E31E24 0%, #8B0000 100%);
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 24px;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px 24px;
+            font-size: 14px;
+            color: #1a1a1a;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: slideInTable 0.5s ease-out forwards;
+        }
+
+        tbody tr:nth-child(1) { animation-delay: 0.05s; }
+        tbody tr:nth-child(2) { animation-delay: 0.1s; }
+        tbody tr:nth-child(3) { animation-delay: 0.15s; }
+        tbody tr:nth-child(4) { animation-delay: 0.2s; }
+        tbody tr:nth-child(5) { animation-delay: 0.25s; }
+        tbody tr:nth-child(6) { animation-delay: 0.3s; }
+        tbody tr:nth-child(7) { animation-delay: 0.35s; }
+        tbody tr:nth-child(8) { animation-delay: 0.4s; }
+        tbody tr:nth-child(9) { animation-delay: 0.45s; }
+        tbody tr:nth-child(10) { animation-delay: 0.5s; }
+
+        @keyframes slideInTable {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        tbody tr:hover {
+            background: linear-gradient(135deg, #f9fafb 0%, #f0f4ff 100%);
+            transform: scale(1.01);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .rank-cell {
+            font-weight: 700;
+            color: #E31E24;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rank-medal {
+            font-size: 20px;
+            display: inline-block;
+            animation: rotateMedal 3s ease-in-out infinite;
+        }
+
+        @keyframes rotateMedal {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .view-count-cell {
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .video-count-cell {
+            font-weight: 600;
+            color: #E31E24;
+        }
+
+        .playlist-link {
+            color: #E31E24;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: rgba(227, 30, 36, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .playlist-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .playlist-link:hover::before {
+            left: 100%;
+        }
+
+        .playlist-link:hover {
+            background: linear-gradient(135deg, rgba(227, 30, 36, 0.2) 0%, rgba(139, 0, 0, 0.2) 100%);
+            transform: translateX(5px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #E31E24;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px;
+            display: none;
+            border: 1px solid #fecaca;
+        }
+
+        .error.show {
+            display: block;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Enhanced Responsive Styles */
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                padding: 30px 20px;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-header {
+                flex-direction: column;
+                gap: 16px;
+                padding: 16px 20px;
+            }
+
+            .logo-section {
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+            }
+
+            .logo-icon {
+                width: 100px;
+                height: 42px;
+            }
+
+            .logo-text h1 {
+                font-size: 22px;
+            }
+
+            .logo-text p {
+                font-size: 12px;
+            }
+
+            .date-badge {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .dashboard-container {
+                padding: 20px 15px;
+            }
+
+            .overview-section {
+                padding: 24px 16px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .section-subtitle {
+                font-size: 14px;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .stat-box {
+                padding: 20px;
+            }
+
+            .stat-icon {
+                font-size: 32px;
+            }
+
+            .stat-value {
+                font-size: 36px;
+            }
+
+            .stat-label {
+                font-size: 12px;
+            }
+
+            .chart-wrapper {
+                padding: 20px 12px;
+            }
+
+            .chart-title {
+                font-size: 18px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 12px 10px;
+            }
+
+            .rank-medal {
+                font-size: 16px;
+            }
+
+            .playlist-link {
+                font-size: 12px;
+                padding: 4px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-icon {
+                width: 80px;
+                height: 35px;
+            }
+
+            .logo-text h1 {
+                font-size: 18px;
+            }
+
+            .section-title {
+                font-size: 20px;
+            }
+
+            .stat-value {
+                font-size: 28px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            table {
+                font-size: 11px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+
+            .overview-section {
+                padding: 20px 12px;
+            }
+        }
+
+        /* Tablet landscape */
+        @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+            .stats-row {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-header">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+                    <text x="10" y="55" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="#E31E24">Adda</text>
+                    <text x="10" y="85" font-family="Arial, sans-serif" font-size="28" font-weight="normal" fill="#2D2D2D">Education</text>
+                </svg>
+            </div>
+            <div class="logo-text">
+                <h1>Children's Day Analytics</h1>
+                <p>YouTube Performance Dashboard</p>
+            </div>
+        </div>
+        <div class="date-badge">
+            📅 November 14, 2025
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading Children's Day analytics...</p>
+        </div>
+
+        <div id="error" class="error">
+            <strong>⚠️ Unable to Load Data</strong>
+            <p id="errorMessage"></p>
+        </div>
+
+        <div id="dashboardContent" style="display: none;">
+            <div class="overview-section">
+                <div class="section-header">
+                    <h2 class="section-title">🎉 Children's Day Special 🎉</h2>
+                    <p class="section-subtitle">Celebrating young minds with educational content</p>
+                </div>
+
+                <div class="stats-row" id="statsRow"></div>
+
+                <div class="chart-section">
+                    <div class="chart-wrapper">
+                        <h3 class="chart-title">📊 Top 10 Channels by View Count</h3>
+                        <div class="chart-container">
+                            <canvas id="viewsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-wrapper">
+                        <h3 class="chart-title">🎬 Video Count Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="videosChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-section">
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>RANK</th>
+                                    <th>CHANNEL NAME</th>
+                                    <th>VIEW COUNT</th>
+                                    <th>VIDEO COUNT</th>
+                                    <th>PLAYLIST LINK</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_ID = '1rg2Xc0dWUF1JuvT6gX0OhmIasRdY6cvHw2n9jzzseNw';
+        const GID = '0';
+
+        let viewsChart, videosChart;
+
+        function formatNumber(num) {
+            if (!num) return '0';
+            const number = parseInt(num);
+            if (number >= 1000000) return (number / 1000000).toFixed(1) + 'M';
+            else if (number >= 1000) return (number / 1000).toFixed(1) + 'K';
+            return number.toLocaleString();
+        }
+
+        function getRankEmoji(rank) {
+            if (rank === 1) return '🥇';
+            if (rank === 2) return '🥈';
+            if (rank === 3) return '🥉';
+            return '📌';
+        }
+
+        function getSheetURL() {
+            return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
+        }
+
+        async function fetchSheetData() {
+            const url = getSheetURL();
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch sheet (Status: ${response.status})`);
+            }
+            const csvText = await response.text();
+            
+            if (csvText.includes('accounts.google.com') || csvText.includes('ServiceLogin')) {
+                throw new Error('Sheet is not publicly accessible. Please make it public.');
+            }
+            
+            return new Promise((resolve, reject) => {
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => resolve(results.data),
+                    error: (error) => reject(error)
+                });
+            });
+        }
+
+        function processData(data) {
+            const validData = data.filter(item => {
+                const channelName = (item['Channel Name'] || '').trim();
+                const viewCount = item['View Counts'] || item['View Count'] || 0;
+                return channelName !== '' && channelName.toLowerCase() !== 'total' && !isNaN(parseInt(String(viewCount).replace(/,/g, '')));
+            });
+
+            const sortedData = validData.map(item => ({
+                channel: (item['Channel Name'] || 'Unknown').trim(),
+                views: parseInt(String(item['View Counts'] || item['View Count'] || 0).replace(/,/g, '')),
+                videos: parseInt(String(item['Video Count'] || 0).replace(/,/g, '')),
+                link: (item['Playlist Link'] || '#').trim()
+            })).sort((a, b) => b.views - a.views);
+
+            const totalViews = sortedData.reduce((sum, item) => sum + item.views, 0);
+            const totalVideos = sortedData.reduce((sum, item) => sum + item.videos, 0);
+            const totalChannels = sortedData.length;
+            const avgViews = totalChannels > 0 ? Math.round(totalViews / totalChannels) : 0;
+
+            return {
+                sortedData,
+                totalChannels,
+                totalViews,
+                totalVideos,
+                avgViews,
+                topChannel: sortedData[0] ? sortedData[0].channel : '-'
+            };
+        }
+
+        function renderStats(data) {
+            const statsRow = document.getElementById('statsRow');
+            statsRow.innerHTML = `
+                <div class="stat-box">
+                    <div class="stat-icon">📺</div>
+                    <div class="stat-value">${data.totalChannels}</div>
+                    <div class="stat-label">Total Channels</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon">👁️</div>
+                    <div class="stat-value">${formatNumber(data.totalViews)}</div>
+                    <div class="stat-label">Total Views</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon">🎬</div>
+                    <div class="stat-value">${formatNumber(data.totalVideos)}</div>
+                    <div class="stat-label">Total Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value">${formatNumber(data.avgViews)}</div>
+                    <div class="stat-label">Average Views</div>
+                </div>
+            `;
+        }
+
+        function renderCharts(sortedData) {
+            const top10 = sortedData.slice(0, 10);
+            const labels = top10.map(item => item.channel);
+            const viewCounts = top10.map(item => item.views);
+            const videoCounts = top10.map(item => item.videos);
+
+            const ctx1 = document.getElementById('viewsChart').getContext('2d');
+            if (viewsChart) viewsChart.destroy();
+            viewsChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'View Count',
+                        data: viewCounts,
+                        backgroundColor: 'rgba(227, 30, 36, 0.8)',
+                        borderColor: 'rgba(227, 30, 36, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => 'Views: ' + context.parsed.y.toLocaleString()
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => formatNumber(value)
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+
+            const ctx2 = document.getElementById('videosChart').getContext('2d');
+            if (videosChart) videosChart.destroy();
+            videosChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Video Count',
+                        data: videoCounts,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        borderColor: 'rgba(0, 0, 0, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => 'Videos: ' + context.parsed.y
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTable(sortedData) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = sortedData.map((item, index) => {
+                const rank = index + 1;
+                const rankEmoji = getRankEmoji(rank);
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="rank-cell">
+                                <span class="rank-medal">${rankEmoji}</span>
+                                <span>#${rank}</span>
+                            </div>
+                        </td>
+                        <td>${item.channel}</td>
+                        <td class="view-count-cell">${formatNumber(item.views)}</td>
+                        <td class="video-count-cell">${item.videos}</td>
+                        <td>
+                            ${item.link !== '#' ? `<a href="${item.link}" target="_blank" class="playlist-link">View Playlist ↗</a>` : '-'}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function loadDashboard() {
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const dashboardContent = document.getElementById('dashboardContent');
+
+            try {
+                loadingDiv.style.display = 'block';
+                errorDiv.classList.remove('show');
+
+                const rawData = await fetchSheetData();
+                const processedData = processData(rawData);
+
+                renderStats(processedData);
+                renderCharts(processedData.sortedData);
+                renderTable(processedData.sortedData);
+
+                loadingDiv.style.display = 'none';
+                dashboardContent.style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                loadingDiv.style.display = 'none';
+                document.getElementById('errorMessage').textContent = error.message;
+                errorDiv.classList.add('show');
+            }
+        }
+
+        loadDashboard();
+
+        setInterval(loadDashboard, 300000);
+    </script>
+</body>
+</html>
