@@ -15,9 +15,6 @@
 
         html {
             scroll-behavior: smooth;
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
         }
 
         body {
@@ -29,8 +26,6 @@
             padding: 0;
             min-height: 100vh;
             position: relative;
-            overflow-x: hidden;
-            width: 100%;
         }
 
         body::before {
@@ -59,12 +54,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: fixed;
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            z-index: 1000;
+            z-index: 100;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
             animation: slideDown 0.6s ease-out;
         }
@@ -141,7 +133,7 @@
             font-weight: 600;
             font-size: 16px;
             box-shadow: 0 4px 12px rgba(227, 30, 36, 0.4);
-            animation: fadeInRight 0.8s ease-out;
+            animation: fadeInRight 0.8s ease-out, pulse 2s ease-in-out infinite;
         }
 
         @keyframes fadeInRight {
@@ -155,11 +147,15 @@
             }
         }
 
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 40px;
-            padding-top: 120px;
             animation: fadeInUp 0.8s ease-out;
         }
 
@@ -200,9 +196,6 @@
         .section-header {
             text-align: center;
             margin-bottom: 32px;
-            width: 100%;
-            position: relative;
-            z-index: 1;
         }
 
         .section-title {
@@ -212,15 +205,12 @@
             margin-bottom: 8px;
             position: relative;
             display: inline-block;
-            word-wrap: break-word;
-            word-break: break-word;
-            line-height: 1.3;
-            white-space: normal;
+            animation: floating 3s ease-in-out infinite;
         }
 
-        .section-title .emoji {
-            display: inline-block;
-            font-style: normal;
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
         .section-title::after {
@@ -233,6 +223,12 @@
             height: 4px;
             background: linear-gradient(90deg, #E31E24, #8B0000);
             border-radius: 2px;
+            animation: expandWidth 1s ease-out;
+        }
+
+        @keyframes expandWidth {
+            from { width: 0; }
+            to { width: 80px; }
         }
 
         .section-subtitle {
@@ -256,10 +252,45 @@
             transition: all 0.3s ease;
             border: 2px solid transparent;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInStagger 0.6s ease-out forwards;
+        }
+
+        .stat-box:nth-child(1) { animation-delay: 0.1s; }
+        .stat-box:nth-child(2) { animation-delay: 0.2s; }
+        .stat-box:nth-child(3) { animation-delay: 0.3s; }
+        .stat-box:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInStagger {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .stat-box:hover::before {
+            left: 100%;
         }
 
         .stat-box:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px) scale(1.02);
             border-color: #E31E24;
             box-shadow: 0 12px 24px rgba(227, 30, 36, 0.2);
         }
@@ -267,6 +298,13 @@
         .stat-icon {
             font-size: 40px;
             margin-bottom: 12px;
+            display: inline-block;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .stat-value {
@@ -277,6 +315,18 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            animation: countUp 1s ease-out;
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .stat-label {
@@ -298,6 +348,12 @@
             margin-bottom: 40px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(229, 231, 235, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .chart-wrapper:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
         }
 
         .chart-title {
@@ -324,14 +380,11 @@
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(229, 231, 235, 0.5);
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px;
         }
 
         thead {
@@ -357,10 +410,35 @@
 
         tbody tr {
             transition: all 0.3s ease;
+            opacity: 0;
+            animation: slideInTable 0.5s ease-out forwards;
+        }
+
+        tbody tr:nth-child(1) { animation-delay: 0.05s; }
+        tbody tr:nth-child(2) { animation-delay: 0.1s; }
+        tbody tr:nth-child(3) { animation-delay: 0.15s; }
+        tbody tr:nth-child(4) { animation-delay: 0.2s; }
+        tbody tr:nth-child(5) { animation-delay: 0.25s; }
+        tbody tr:nth-child(6) { animation-delay: 0.3s; }
+        tbody tr:nth-child(7) { animation-delay: 0.35s; }
+        tbody tr:nth-child(8) { animation-delay: 0.4s; }
+        tbody tr:nth-child(9) { animation-delay: 0.45s; }
+        tbody tr:nth-child(10) { animation-delay: 0.5s; }
+
+        @keyframes slideInTable {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         tbody tr:hover {
             background: linear-gradient(135deg, #f9fafb 0%, #f0f4ff 100%);
+            transform: scale(1.01);
         }
 
         tbody tr:last-child td {
@@ -377,6 +455,14 @@
 
         .rank-medal {
             font-size: 20px;
+            display: inline-block;
+            animation: rotateMedal 3s ease-in-out infinite;
+        }
+
+        @keyframes rotateMedal {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
         }
 
         .view-count-cell {
@@ -400,11 +486,28 @@
             border-radius: 8px;
             transition: all 0.3s ease;
             background: rgba(227, 30, 36, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .playlist-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .playlist-link:hover::before {
+            left: 100%;
         }
 
         .playlist-link:hover {
             background: linear-gradient(135deg, rgba(227, 30, 36, 0.2) 0%, rgba(139, 0, 0, 0.2) 100%);
-            transform: translateX(3px);
+            transform: translateX(5px);
         }
 
         .loading {
@@ -440,32 +543,54 @@
 
         .error.show {
             display: block;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Enhanced Responsive Styles */
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                padding: 30px 20px;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-container {
+                height: 350px;
+            }
         }
 
         @media (max-width: 768px) {
-            html, body {
-                overflow-x: hidden;
-                width: 100%;
-                max-width: 100vw;
-            }
-
             .top-header {
                 flex-direction: column;
                 gap: 16px;
                 padding: 16px 20px;
-                position: fixed;
-                width: 100%;
-                left: 0;
-                right: 0;
             }
 
             .logo-section {
                 flex-direction: column;
                 text-align: center;
+                gap: 12px;
+            }
+
+            .logo-icon {
+                width: 100px;
+                height: 42px;
             }
 
             .logo-text h1 {
-                font-size: 20px;
+                font-size: 22px;
+            }
+
+            .logo-text p {
+                font-size: 12px;
             }
 
             .date-badge {
@@ -474,66 +599,19 @@
             }
 
             .dashboard-container {
-                padding: 20px 16px;
-                padding-top: 140px;
-                max-width: 100%;
-                overflow-x: hidden;
+                padding: 20px 15px;
             }
 
             .overview-section {
-                padding: 24px 12px 20px 12px;
-                border-radius: 16px;
-                overflow: visible !important;
-            }
-
-            .section-header {
-                padding: 0 8px;
-                margin-bottom: 24px;
-                width: 100%;
-                box-sizing: border-box;
-                position: relative;
-                z-index: 1;
-                display: block !important;
-                visibility: visible !important;
-                overflow: visible !important;
+                padding: 24px 16px;
             }
 
             .section-title {
-                font-size: 18px !important;
-                line-height: 1.6 !important;
-                padding: 8px 8px !important;
-                margin: 0 auto 12px auto !important;
-                word-wrap: break-word;
-                word-break: break-word;
-                max-width: calc(100% - 16px) !important;
-                width: calc(100% - 16px) !important;
-                display: block !important;
-                text-align: center !important;
-                white-space: normal !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                color: #1a1a1a !important;
-                font-weight: 700 !important;
-                box-sizing: border-box !important;
-                position: relative !important;
-                z-index: 10 !important;
-            }
-
-            .section-title .emoji {
-                display: inline-block;
-                vertical-align: middle;
-                font-size: 20px;
-            }
-
-            .section-title::after {
-                width: 50px;
-                bottom: -6px;
+                font-size: 24px;
             }
 
             .section-subtitle {
-                font-size: 13px;
-                padding: 0 5px;
-                margin-top: 12px;
+                font-size: 14px;
             }
 
             .stats-row {
@@ -541,48 +619,91 @@
                 gap: 16px;
             }
 
+            .stat-box {
+                padding: 20px;
+            }
+
+            .stat-icon {
+                font-size: 32px;
+            }
+
             .stat-value {
                 font-size: 36px;
+            }
+
+            .stat-label {
+                font-size: 12px;
+            }
+
+            .chart-wrapper {
+                padding: 20px 12px;
+            }
+
+            .chart-title {
+                font-size: 18px;
             }
 
             .chart-container {
                 height: 300px;
             }
 
-            .data-table {
-                border-radius: 12px;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
             table {
                 font-size: 12px;
-                min-width: 600px;
             }
 
             th, td {
-                padding: 10px 12px;
-                white-space: nowrap;
+                padding: 12px 10px;
             }
 
-            th:first-child, td:first-child {
-                position: sticky;
-                left: 0;
-                background: linear-gradient(135deg, #E31E24 0%, #8B0000 100%);
-                z-index: 10;
+            .rank-medal {
+                font-size: 16px;
             }
 
-            td:first-child {
-                background: white;
+            .playlist-link {
+                font-size: 12px;
+                padding: 4px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-icon {
+                width: 80px;
+                height: 35px;
             }
 
-            tbody tr:hover td:first-child {
-                background: linear-gradient(135deg, #f9fafb 0%, #f0f4ff 100%);
+            .logo-text h1 {
+                font-size: 18px;
             }
 
-            .chart-wrapper {
-                padding: 16px;
-                overflow-x: auto;
+            .section-title {
+                font-size: 20px;
+            }
+
+            .stat-value {
+                font-size: 28px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            table {
+                font-size: 11px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+
+            .overview-section {
+                padding: 20px 12px;
+            }
+        }
+
+        /* Tablet landscape */
+        @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+            .stats-row {
+                grid-template-columns: repeat(4, 1fr);
             }
         }
     </style>
@@ -620,7 +741,7 @@
         <div id="dashboardContent" style="display: none;">
             <div class="overview-section">
                 <div class="section-header">
-                    <h2 class="section-title"><span class="emoji">🎉</span> Children's Day Special <span class="emoji">🎉</span></h2>
+                    <h2 class="section-title">🎉 Children's Day Special 🎉</h2>
                     <p class="section-subtitle">Celebrating young minds with educational content</p>
                 </div>
 
@@ -770,7 +891,6 @@
             const viewCounts = top10.map(item => item.views);
             const videoCounts = top10.map(item => item.videos);
 
-            // Views Chart
             const ctx1 = document.getElementById('viewsChart').getContext('2d');
             if (viewsChart) viewsChart.destroy();
             viewsChart = new Chart(ctx1, {
@@ -814,7 +934,6 @@
                 }
             });
 
-            // Videos Chart
             const ctx2 = document.getElementById('videosChart').getContext('2d');
             if (videosChart) videosChart.destroy();
             videosChart = new Chart(ctx2, {
@@ -910,11 +1029,9 @@
             }
         }
 
-        // Initialize
         loadDashboard();
 
-        // Auto-refresh every 10 seconds
-        setInterval(loadDashboard, 10000);
+        setInterval(loadDashboard, 300000);
     </script>
 </body>
 </html>
